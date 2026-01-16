@@ -69,7 +69,7 @@ function handleLogin() {
   } else {
     // For now, redirect to index.html for regular users
     // since user.html doesn't exist yet
-    window.location.href = "index.html";
+    window.location.href = "user.html";
   }
 }
 

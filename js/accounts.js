@@ -172,17 +172,64 @@ function editAccount(index) {
 // ============================
 function deleteAccount(index) {
   const accounts = getAccounts();
+  const accountToDelete = accounts[index];
+  
+  // store here the acc for index to use in confirm delete 
+  window.deleteAccountIndex = index;
+  window.deleteAccountEmail = accountToDelete.email;
 
-  if (accounts[index].email === loggedInUser.email) {
+ 
+  // find the index of the current user 
+  const currentUserIndex = accounts.findIndex(
+    acc => acc.email === loggedInUser.email
+  );
+  
+  if (index === currentUserIndex) {
     alert("You cannot delete your own account.");
     return;
   }
 
-  if (!confirm("Are you sure you want to delete this account?")) return;
+  //prevemt deletion of the last admin account
+  if (accountToDelete.role === "admin") {
+    const adminCount = accounts.filter(acc => acc.role === "admin").length;
+    
+    if (adminCount === 2) {
+      alert(
+        "Cannot delete this account you choose. " +
+        accountToDelete.email +
+        " is the last admin in the system beside you. " +
+        "Promote another user to admin before deleting this account."
+      );
+      return;
+    }
+  }
+
+  // Show Bootstrap confirmation modal
+  document.getElementById("deleteConfirmEmail").textContent = accountToDelete.email;
+  new bootstrap.Modal(
+    document.getElementById("deleteConfirmModal")
+  ).show();
+}
+
+// ============================
+// CONFIRM DELETE ACCOUNT
+// ============================
+function confirmDeleteAccount() {
+  const accounts = getAccounts();
+  const index = window.deleteAccountIndex;
 
   accounts.splice(index, 1);
   saveAccounts(accounts);
   loadAccounts();
+
+  // Close modal
+  bootstrap.Modal.getInstance(
+    document.getElementById("deleteConfirmModal")
+  ).hide();
+
+  // Clear stored values
+  window.deleteAccountIndex = null;
+  window.deleteAccountEmail = null;
 }
 
 // ============================
